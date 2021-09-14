@@ -1,8 +1,6 @@
 import {AuthData} from './types';
 import * as _ from 'lodash';
-
-const EthAccounts = require('web3-eth-accounts');
-const ethAccounts = new EthAccounts();
+import {ethers} from 'ethers';
 
 function auth(data: AuthData): boolean {
   const {address, signature} = data;
@@ -11,9 +9,35 @@ function auth(data: AuthData): boolean {
   const signatureWithPrefix = _.startsWith(signature, '0x')
     ? signature
     : `0x${signature}`;
-  const recoveredAddress = ethAccounts.recover(address, signatureWithPrefix);
-  console.log(`Recovered ethereum address ${recoveredAddress}`);
-  return _.toLower(_.trim(recoveredAddress)) === _.toLower(_.trim(address));
+  return (
+    compareAddresses(
+      address,
+      recoverMyEtherWalletSignature(address, signatureWithPrefix)
+    ) ||
+    compareAddresses(
+      address,
+      recoverMyCryptoSignature(address, signatureWithPrefix)
+    )
+  );
+}
+
+function recoverMyEtherWalletSignature(
+  address: string,
+  signature: string
+): string {
+  const hashBytes = ethers.utils.arrayify(address);
+  const messageHash = ethers.utils.hashMessage(hashBytes);
+  const messageHashBytes = ethers.utils.arrayify(messageHash);
+  const publicKey = ethers.utils.recoverPublicKey(messageHashBytes, signature);
+  return ethers.utils.computeAddress(publicKey);
+}
+
+function recoverMyCryptoSignature(address: string, signature: string): string {
+  return ethers.utils.verifyMessage(address, signature);
+}
+
+function compareAddresses(address: string, recoverAddress: string): boolean {
+  return _.toLower(_.trim(recoverAddress)) === _.toLower(_.trim(address));
 }
 
 export default {
