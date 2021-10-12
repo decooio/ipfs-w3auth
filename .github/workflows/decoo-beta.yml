@@ -27,7 +27,7 @@ jobs:
         password: ${{ secrets.DECOO_PAT }}
 
     - name: Install dependencies
-      run: yarn install --immutable
+      run: yarn install
 
     - name: Build bundle
       run: yarn build
@@ -35,4 +35,4 @@ jobs:
     - name: Dockerize and push
       run: |
         ./dockerize.sh
-        docker push ghcr.io/decooio/ipfs-w3auth-gateway-beta:latest
+        docker push ghcr.io/decooio/ipfs-w3auth-gateway:latest
