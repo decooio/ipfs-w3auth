@@ -34,5 +34,5 @@ jobs:
 
     - name: Dockerize and push
       run: |
-        ./dockerize.sh
-        docker push ghcr.io/decooio/ipfs-w3auth-gateway:latest
+        ./dockerize-beta.sh
+        docker push ghcr.io/decooio/ipfs-w3auth-beta:latest
